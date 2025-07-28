@@ -1,0 +1,85 @@
+from fpdf import FPDF
+
+# Function to gather user input
+def collect_resume_data():
+    print("Enter your resume details:")
+    name = input("Full Name: ")
+    email = input("Email: ")
+    phone = input("Phone: ")
+    summary = input("Professional Summary: ")
+
+    education = []
+    while True:
+        print("\nEnter education details:")
+        degree = input("Degree: ")
+        institution = input("Institution: ")
+        year = input("Year of Graduation: ")
+        education.append((degree, institution, year))
+        more = input("Add another education entry? (y/n): ")
+        if more.lower() != 'y':
+            break
+
+    experience = []
+    while True:
+        print("\nEnter work experience:")
+        title = input("Job Title: ")
+        company = input("Company: ")
+        duration = input("Duration: ")
+        description = input("Description: ")
+        experience.append((title, company, duration, description))
+        more = input("Add another job? (y/n): ")
+        if more.lower() != 'y':
+            break
+
+    skills = input("\nEnter your skills (comma separated): ").split(',')
+
+    return {
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "summary": summary,
+        "education": education,
+        "experience": experience,
+        "skills": [skill.strip() for skill in skills]
+    }
+
+# Function to create a PDF resume
+def create_pdf_resume(data, filename="resume.pdf"):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+
+    pdf.cell(0, 10, data["name"], ln=True)
+    pdf.set_font("Arial", '', 12)
+    pdf.cell(0, 10, f"{data['email']} | {data['phone']}", ln=True)
+
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "Summary", ln=True)
+    pdf.set_font("Arial", '', 12)
+    pdf.multi_cell(0, 10, data["summary"])
+
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "Education", ln=True)
+    pdf.set_font("Arial", '', 12)
+    for degree, institution, year in data["education"]:
+        pdf.cell(0, 10, f"{degree}, {institution} ({year})", ln=True)
+
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "Experience", ln=True)
+    pdf.set_font("Arial", '', 12)
+    for title, company, duration, desc in data["experience"]:
+        pdf.cell(0, 10, f"{title} at {company} ({duration})", ln=True)
+        pdf.multi_cell(0, 10, desc)
+
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "Skills", ln=True)
+    pdf.set_font("Arial", '', 12)
+    pdf.multi_cell(0, 10, ', '.join(data["skills"]))
+
+    pdf.output(filename)
+    print(f"\n✅ Resume saved as {filename}")
+
+# Run the resume builder
+if __name__ == "__main__":
+    resume_data = collect_resume_data()
+    create_pdf_resume(resume_data)
